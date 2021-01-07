@@ -46,3 +46,13 @@ jobs:
           K8S_SECRET_ALLOWED_HOSTS: "*"
           K8S_SECRET_DEBUG: 1
           K8S_SECRET_CORS_ORIGIN_ALLOW_ALL: 1
+
+      - name: Deploy Cronjob
+        uses: City-of-Helsinki/setup-cronjob-action@main
+        with:
+          image_repository: curlimages/curl
+          kubeconfig_raw: ${{ env.KUBECONFIG_RAW}}
+          target_namespace: ${{ env.K8S_NAMESPACE }}
+          schedule: 56 * * * *
+          command: "{bin/sh}"
+          args: "{-c,cd && wget https://github.com/skanehira/gjo/releases/download/1.0.2/Linux.zip && unzip Linux.zip && ./gjo text=test > payload.json && curl -X POST --data @payload.json ${{ secrets.SLACK_TEST_TARGET }}}"
