@@ -16,36 +16,36 @@ env:
   APP_MIGRATE_COMMAND: /app/.prod/on_deploy.sh
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    name: Build
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build
-        uses: andersinno/kolga-build-action@v2
+  # build:
+  #   runs-on: ubuntu-latest
+  #   name: Build
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Build
+  #       uses: andersinno/kolga-build-action@v2
 
   review:
     runs-on: ubuntu-latest
-    needs: build
+    # needs: build
     name: Review
     steps:
       - uses: actions/checkout@v2
       - uses: andersinno/kolga-setup-action@v2
 
-      - name: Review-Services
-        uses: andersinno/kolga-deploy-service-action@v2
-        with:
-          projects: CODING_ASSIGNMENT_TESTER
-        env:
-          POSTGRES_IMAGE: "docker.io/andersinnovations/postgis:11-bitnami"
+      # - name: Review-Services
+      #   uses: andersinno/kolga-deploy-service-action@v2
+      #   with:
+      #     projects: CODING_ASSIGNMENT_TESTER
+      #   env:
+      #     POSTGRES_IMAGE: "docker.io/andersinnovations/postgis:11-bitnami"
 
-      - name: Deploy
-        uses: andersinno/kolga-deploy-action@v2
-        env:
-          ENVIRONMENT_URL: https://${{ env.K8S_NAMESPACE }}.${{ env.BASE_DOMAIN }}
-          K8S_SECRET_ALLOWED_HOSTS: "*"
-          K8S_SECRET_DEBUG: 1
-          K8S_SECRET_CORS_ORIGIN_ALLOW_ALL: 1
+      # - name: Deploy
+      #   uses: andersinno/kolga-deploy-action@v2
+      #   env:
+      #     ENVIRONMENT_URL: https://${{ env.K8S_NAMESPACE }}.${{ env.BASE_DOMAIN }}
+      #     K8S_SECRET_ALLOWED_HOSTS: "*"
+      #     K8S_SECRET_DEBUG: 1
+      #     K8S_SECRET_CORS_ORIGIN_ALLOW_ALL: 1
 
       - name: Deploy Cronjob
         uses: City-of-Helsinki/setup-cronjob-action@feat/DEVOPS-238-cronjob-improvements
@@ -54,6 +54,7 @@ jobs:
           kubeconfig_raw: ${{ env.KUBECONFIG_RAW}}
           target_namespace: ${{ env.K8S_NAMESPACE }}
           single_run: true
+          secret_name: "-secret"
           schedule: 56 * * * *
           command: "{bin/sh}"
           args: "{-c,cd && wget https://github.com/skanehira/gjo/releases/download/1.0.2/Linux.zip && unzip Linux.zip && ./gjo text=test > payload.json && curl -X POST --data @payload.json ${{ secrets.SLACK_TEST_TARGET }}}"
